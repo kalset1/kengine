@@ -2,7 +2,6 @@ import pygame
 import numpy as np
 from parser import parser
 
-
 class Point:
     def __init__(self, x : float, y : float, z : float):
         self.x = x
@@ -193,8 +192,10 @@ class kEngine:
         for line in lines:
             pygame.draw.line(self.disp, (0, 0, 255), line[0], line[1], width=3)
 
-        for pt in self.shape.pts_2d:
+        for i, pt in enumerate(self.shape.pts_2d):
             pygame.draw.circle(self.disp, (0, 0, 255), pt, 5)
+            text = self.GAME_FONT.render(f"{i + 1}", False, (0, 0, 0))
+            self.disp.blit(text, (pt[0], pt[1] + 10))
 
 
     def shade(self):
@@ -210,6 +211,8 @@ class kEngine:
 
     def run(self):
         pygame.init()
+
+        self.GAME_FONT = pygame.font.SysFont('Times New Roman', 30)
 
         self.disp = pygame.display.set_mode(self.canvas_size)
         self.mouse_pressed = False
@@ -239,5 +242,5 @@ class kEngine:
 
 
 if __name__ == '__main__':
-    engine = kEngine("../data/object.txt", [1000, 1000])
+    engine = kEngine("../data/object_copy.txt", [1000, 1000])
     engine.run()
