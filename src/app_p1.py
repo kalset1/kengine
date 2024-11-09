@@ -48,6 +48,12 @@ class Shape:
             x_2d, y_2d = cam.convert_point_to_2d(pt)
             pts.append([x_2d, y_2d])
 
+        pts = np.array(pts) / np.max(np.linalg.norm((np.array(pts))))
+
+        for i, pt in enumerate(pts):
+            pts[i][0] = (pt[0] + 1) * (cam.width / 2)
+            pts[i][1] = (pt[1] + 1) * (cam.height / 2)
+
         self.pts_2d = pts
 
     def rotate(self, rotation_matrix : np.array) -> None:
@@ -80,9 +86,6 @@ class Camera:
 
         if abs(x_2d) > self.width / 2 or abs(y_2d) > self.height / 2:
             return None  # return None (error)
-
-        x_2d = (x_2d + 1) * (self.width / 2)
-        y_2d = (y_2d + 1) * (self.height / 2)
 
         return x_2d, y_2d
 

@@ -242,5 +242,5 @@ class kEngine:
 
 
 if __name__ == '__main__':
-    engine = kEngine("../data/object_copy.txt", [1000, 1000])
+    engine = kEngine("../data/object.txt", [1000, 1000])
     engine.run()
