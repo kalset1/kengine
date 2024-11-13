@@ -1,5 +1,6 @@
 import pygame
 import numpy as np
+import argparse
 from parser import parser
 
 class Point:
@@ -22,6 +23,7 @@ class Shape:
         self.face_surface = None
         self.pts_2d = None
         self.rotation = np.diag((1, 1, 1, 1))
+        self.z_axis = np.array([0, 0, 1, 1])
 
     def gen_points(self) -> list:
         pts = []
@@ -63,6 +65,9 @@ class Shape:
         for pt in self.vertex_points:
             pt.ho = rotation_matrix @ pt.ho # update vertex points
 
+        self.z_axis = rotation_matrix @ self.z_axis 
+        print(self.z_axis)
+
     def face_points_and_normal(self) -> None:
         surfaces_and_score = []
 
@@ -76,6 +81,8 @@ class Shape:
             normal = normal / np.linalg.norm(normal)
 
             z_axis = self.rotation[:3, 2] - np.array([0, 0, -10]) # position of camera in global frame
+            # print(f"{self.rotation[:3, 2] = }")
+            # print(f"{self.z_axis = }\n")
             z_axis = z_axis / np.linalg.norm(z_axis)
  
             if ((np.dot(normal, z_axis)) >= 0): # triangle culling 
@@ -122,7 +129,7 @@ class Camera:
 
 
 class kEngine:
-    def __init__(self, filepath, canvas_size):
+    def __init__(self, filepath, canvas_size, mode):
         self.canvas_size = canvas_size
         self.height, self.width = canvas_size
 
@@ -138,6 +145,8 @@ class kEngine:
 
         self.mouse_pressed = None
         self.prev_mouse_pos = None
+
+        self.mode = mode
 
 
     def get_delta_mouse(self):
@@ -229,9 +238,10 @@ class kEngine:
 
             self.draw_shape()
 
-            self.perform_rotation()
+            if (self.mode == "2"):
+                self.shade()
 
-            self.shade()
+            self.perform_rotation()
 
             pygame.display.flip()
 
@@ -242,5 +252,13 @@ class kEngine:
 
 
 if __name__ == '__main__':
-    engine = kEngine("../data/object.txt", [1000, 1000])
+    argparser = argparse.ArgumentParser(description="3D graphics engine built entirely with numpy and drawn using pygame.\n")
+    argparser.add_argument("-m", "--mode", help = "select which mode to display (1 for wireaframe, 2 for shading).\n")
+    argparser.add_argument("-i", "--input", help = "file path to input.\n")
+    args = argparser.parse_args()
+
+    input = args.input if args.input != None else '../data/object.txt'
+    mode = args.mode if args.mode != None else "2"
+
+    engine = kEngine(input, [1500, 1500], mode)
     engine.run()
