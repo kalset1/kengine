@@ -37,7 +37,13 @@ class Shape:
 
     def gen_points(self) -> list:
         pts = []
+        flattened_faces = np.array(self.faces).flatten()
+
         for vertex in self.vertices:
+            # do not include vertex in points if it is never referenced in faces
+            if vertex[0] - 1 not in flattened_faces: # to account for 1 indexing vs. 0 indexing
+                continue
+
             x, y, z = vertex[1:]
             pt = Point(x, y, z)
             pts.append(pt)
@@ -356,12 +362,25 @@ class kEngine:
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description="3D graphics engine built entirely with numpy and drawn using pygame.\n")
-    argparser.add_argument("-m", "--mode", help = "select which mode to display (1 for wireaframe, 2 for shading).\n")
-    argparser.add_argument("-i", "--input", help = "file path to input.\n")
+    argparser.add_argument("-m", "--mode", help = "select which mode to display (1 for wireframe, 2 for shading), default = 2\n")
+    argparser.add_argument("-i", "--input", help = "file path to input, default = ../data/object.txt\n")
+    argparser.add_argument("-s", "--size", help = "window size to display, default = 1000,1000\n")
     args = argparser.parse_args()
 
     input = args.input if args.input != None else '../data/object.txt'
     mode = args.mode if args.mode != None else "2"
+    size = args.size if args.size != None else [1000, 1000]
 
-    engine = kEngine(input, [1000, 1000], mode)
+    if (mode != '1' and mode != '2'):
+        print("\nInvalid mode entered! (use 1 or 2)\n")
+        exit()
+
+    try:
+        size = size.replace(' ', "").split(',')
+        size = list(map(int, size))
+    except:
+        print("\nInvalid size entered! (enter two comma separated values with no spaces)\n")
+        exit()
+
+    engine = kEngine(input, size, mode)
     engine.run()
